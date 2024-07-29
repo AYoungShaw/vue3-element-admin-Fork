@@ -1,4 +1,4 @@
-<!-- 多图上传组件 -->
+<!-- 图片上传组件 -->
 <template>
   <el-upload
     v-model:file-list="fileList"
@@ -7,14 +7,18 @@
       fileList.length >= props.limit || !props.showUploadBtn ? 'hide' : 'show'
     "
     :before-upload="handleBeforeUpload"
-    :http-request="handleUpload"
-    :on-remove="handleRemove"
+    :action="props.action"
+    :headers="props.headers"
+    :data="props.data"
+    :name="props.name"
+    :on-success="handleSuccessFile"
+    :on-error="handleError"
     :accept="props.accept"
     :limit="props.limit"
   >
     <i-ep-plus />
     <template #file="{ file }">
-      <div>
+      <div style="width: 100%">
         <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
         <span class="el-upload-list__item-actions">
           <span class="el-upload-list__item-preview" @click="previewImg(file)">
@@ -49,6 +53,8 @@ import {
   UploadProps,
 } from "element-plus";
 import FileAPI from "@/api/file";
+import { TOKEN_KEY } from "@/enums/CacheEnum";
+import { ResultEnum } from "@/enums/ResultEnum";
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -59,6 +65,40 @@ const props = defineProps({
   modelValue: {
     type: Array<string>,
     default: () => [],
+  },
+  /**
+   * 上传地址
+   */
+  action: {
+    type: String,
+    default: FileAPI.uploadUrl,
+  },
+  /**
+   * 请求头
+   */
+  headers: {
+    type: Object,
+    default: () => {
+      return {
+        Authorization: localStorage.getItem(TOKEN_KEY),
+      };
+    },
+  },
+  /**
+   * 请求携带的额外参数
+   */
+  data: {
+    type: Object,
+    default: () => {
+      return {};
+    },
+  },
+  /**
+   * 上传文件的参数名
+   */
+  name: {
+    type: String,
+    default: "file",
   },
   /**
    * 文件上传数量限制
@@ -101,6 +141,7 @@ const viewVisible = ref(false);
 const initialIndex = ref(0);
 
 const fileList = ref([] as UploadUserFile[]);
+const valFileList = ref([] as string[]);
 const viewFileList = ref([] as string[]);
 
 watch(
@@ -125,46 +166,43 @@ watch(
     fileList.value = newVal.map((filePath) => {
       return { url: filePath } as UploadUserFile;
     });
+    valFileList.value = newVal.map((filePath) => {
+      return filePath;
+    });
   },
   { immediate: true }
 );
 
 /**
- * 自定义图片上传
+ * 上传成功回调
  *
  * @param options
  */
-async function handleUpload(options: UploadRequestOptions): Promise<any> {
-  // 上传API调用
-  const data = await FileAPI.upload(options.file);
+const handleSuccessFile = (response: any, file: UploadFile) => {
+  if (response.code === ResultEnum.SUCCESS) {
+    ElMessage.success("上传成功");
+    valFileList.value.push(response.data.url);
+    emit("update:modelValue", valFileList.value);
+    return;
+  } else {
+    ElMessage.error(response.msg || "上传失败");
+  }
+};
 
-  // 上传成功需手动替换文件路径为远程URL，否则图片地址为预览地址 blob:http://
-  const fileIndex = fileList.value.findIndex(
-    (file) => file.uid == (options.file as any).uid
-  );
-  fileList.value.splice(fileIndex, 1, {
-    name: data.name,
-    url: data.url,
-  } as UploadUserFile);
-  emit(
-    "update:modelValue",
-    fileList.value.map((file) => file.url)
-  );
-}
+const handleError = (error: any) => {
+  ElMessage.error("上传失败");
+};
 
 /**
  * 删除图片
  */
 function handleRemove(removeFile: UploadFile) {
   const filePath = removeFile.url;
-
   if (filePath) {
     FileAPI.deleteByPath(filePath).then(() => {
+      valFileList.value = valFileList.value.filter((x) => x !== filePath);
       // 删除成功回调
-      emit(
-        "update:modelValue",
-        fileList.value.map((file) => file.url)
-      );
+      emit("update:modelValue", valFileList.value);
     });
   }
 }
@@ -175,7 +213,7 @@ function handleRemove(removeFile: UploadFile) {
 function handleBeforeUpload(file: UploadRawFile) {
   if (file.size > props.uploadMaxSize) {
     ElMessage.warning(
-      "上传图片不能大于" + props.uploadMaxSize / 1024 / 1024 + "M"
+      "上传图片不能大于" + Math.trunc(props.uploadMaxSize / 1024 / 1024) + "M"
     );
     return false;
   }
