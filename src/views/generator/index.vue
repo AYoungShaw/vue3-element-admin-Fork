@@ -82,7 +82,7 @@
       </el-steps>
 
       <div class="mt-5">
-        <el-form v-show="active == 1" :model="formData" :label-width="100">
+        <el-form v-show="active == 0" :model="formData" :label-width="100">
           <el-row>
             <el-col :span="12">
               <el-form-item label="表名">
@@ -124,7 +124,7 @@
         </el-form>
 
         <el-table
-          v-show="active == 2"
+          v-show="active == 1"
           v-loading="loading"
           :element-loading-text="loadingText"
           highlight--currentrow
@@ -223,6 +223,21 @@
             </template>
           </el-table-column>
 
+          <el-table-column label="查询方式">
+            <template #default="scope">
+              <el-form-item>
+                <el-select v-model="scope.row.queryType" placeholder="请选择">
+                  <el-option
+                    v-for="(option, key) in queryTypeOptions"
+                    :key="key"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+
           <el-table-column label="表单类型">
             <template #default="scope">
               <el-form-item>
@@ -238,13 +253,13 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="查询方式">
+          <el-table-column label="字典类型">
             <template #default="scope">
               <el-form-item>
-                <el-select v-model="scope.row.queryType" placeholder="请选择">
+                <el-select v-model="scope.row.dictType" placeholder="请选择">
                   <el-option
-                    v-for="(option, key) in queryTypeOptions"
-                    :key="key"
+                    v-for="option in dictOptions"
+                    :key="option.value"
                     :label="option.label"
                     :value="option.value"
                   />
@@ -253,7 +268,8 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-row v-show="active == 3">
+
+        <el-row v-show="active == 2">
           <el-col :span="6">
             <el-scrollbar max-height="72vh">
               <el-tree
@@ -293,13 +309,13 @@
       </div>
 
       <template #footer>
-        <el-button type="success" @click="handlePrevClick" v-if="active !== 1">
+        <el-button type="success" @click="handlePrevClick" v-if="active !== 0">
           <el-icon><Back /></el-icon>
           {{ prevBtnText }}
         </el-button>
         <el-button type="primary" @click="handleNextClick">
           {{ nextBtnText }}
-          <el-icon v-if="active !== 3"><Right /></el-icon>
+          <el-icon v-if="active !== 2"><Right /></el-icon>
           <el-icon v-else><Download /></el-icon>
         </el-button>
       </template>
@@ -315,8 +331,8 @@ defineOptions({
 import "codemirror/mode/javascript/javascript.js";
 import Codemirror from "codemirror-editor-vue3";
 import type { CmComponentRef } from "codemirror-editor-vue3";
-import type { Editor, EditorConfiguration } from "codemirror";
-const { copy, copied } = useClipboard();
+import type { EditorConfiguration } from "codemirror";
+
 import { FormTypeEnum } from "@/enums/FormTypeEnum";
 import { QueryTypeEnum } from "@/enums/QueryTypeEnum";
 
@@ -326,29 +342,29 @@ import GeneratorAPI, {
   TablePageQuery,
 } from "@/api/generator";
 
+import DictAPI from "@/api/dict";
+
 const queryFormRef = ref(ElForm);
 
 const loading = ref(false);
 const loadingText = ref("loading...");
 const total = ref(0);
-
 const queryParams = reactive<TablePageQuery>({
   pageNum: 1,
   pageSize: 10,
 });
-
 const pageData = ref<TablePageVO[]>([]);
-
 const formData = ref<GenConfigForm>({});
-
 const formTypeOptions: Record<string, OptionType> = FormTypeEnum;
 const queryTypeOptions: Record<string, OptionType> = QueryTypeEnum;
+const dictOptions = ref<OptionType[]>();
 
 const dialog = reactive({
   visible: false,
   title: "",
 });
 
+const { copy, copied } = useClipboard();
 const code = ref();
 const cmRef = ref<CmComponentRef>();
 const cmOptions: EditorConfiguration = {
@@ -357,14 +373,22 @@ const cmOptions: EditorConfiguration = {
 
 const prevBtnText = ref("");
 const nextBtnText = ref("下一步，字段配置");
-const active = ref(1);
+const active = ref(0);
+
+interface TreeNode {
+  label: string;
+  content?: string;
+  children?: TreeNode[];
+}
+
+const treeData = ref<TreeNode[]>([]);
 
 function handlePrevClick() {
-  if (active.value-- <= 1) active.value = 1;
+  if (active.value-- <= 0) active.value = 0;
 }
 
 function handleNextClick() {
-  if (active.value === 2) {
+  if (active.value === 1) {
     // 保存生成配置
     const tableName = formData.value.tableName;
     if (!tableName) {
@@ -378,24 +402,24 @@ function handleNextClick() {
         handlePreview(tableName);
       })
       .then(() => {
-        if (active.value++ >= 3) active.value = 3;
+        if (active.value++ >= 2) active.value = 2;
       })
       .finally(() => {
         loading.value = false;
         loadingText.value = "loading...";
       });
   } else {
-    if (active.value++ >= 3) active.value = 3;
+    if (active.value++ >= 2) active.value = 2;
   }
 }
 
 watch(active, (val) => {
-  if (val === 1) {
+  if (val === 0) {
     nextBtnText.value = "下一步，字段配置";
-  } else if (val === 2) {
+  } else if (val === 1) {
     prevBtnText.value = "上一步，基础配置";
     nextBtnText.value = "下一步，确认生成";
-  } else if (val === 3) {
+  } else if (val === 2) {
     prevBtnText.value = "上一步，字段配置";
     nextBtnText.value = "下载代码";
   }
@@ -424,26 +448,24 @@ function handleCloseDialog() {
   dialog.visible = false;
 }
 
-interface TreeNode {
-  label: string;
-  content?: string;
-  children?: TreeNode[];
-}
-
-const treeData = ref<TreeNode[]>([]);
-
 /** 打开弹窗 */
 function handleOpenDialog(tableName: string) {
   dialog.visible = true;
-  GeneratorAPI.getGenConfig(tableName).then((data) => {
-    dialog.title = `${tableName} 代码生成`;
-    formData.value = data;
-    if (formData.value.id) {
-      active.value = 3;
-      handlePreview(tableName);
-    } else {
-      active.value = 1;
-    }
+
+  // 获取字典数据
+  DictAPI.getList().then((data) => {
+    dictOptions.value = data;
+
+    GeneratorAPI.getGenConfig(tableName).then((data) => {
+      dialog.title = `${tableName} 代码生成`;
+      formData.value = data;
+      if (formData.value.id) {
+        active.value = 2;
+        handlePreview(tableName);
+      } else {
+        active.value = 0;
+      }
+    });
   });
 }
 
@@ -451,8 +473,7 @@ function handleOpenDialog(tableName: string) {
 function handlePreview(tableName: string) {
   treeData.value = [];
   GeneratorAPI.getPreviewData(tableName).then((data) => {
-    dialog.title = `预览 ${tableName}`;
-
+    dialog.title = `代码生成 ${tableName}`;
     // 组装树形结构完善代码
     const tree = buildTree(data);
     treeData.value = [tree];
@@ -485,11 +506,11 @@ function buildTree(
     // 定义特殊路径
     // TODO: 如果菜单有多个节点，需要将此菜单作为独立一级的节点，而不是合并到上一级。 按照此规则， com.youlai.system 则是三个节点，而不是合并到一起，但是这里需要将 com.youlai.system 合并到一起，所以需要特殊处理
     const specialPaths = [
-      "com\\youlai\\system",
-      "src\\main",
+      "src/main",
       "java",
       "youlai-boot",
       "vue3-element-admin",
+      "com/youlai/system",
     ];
 
     // 检查路径中的特殊部分并合并它们
@@ -499,6 +520,7 @@ function buildTree(
     parts.forEach((part) => {
       buffer.push(part);
       const currentPath = buffer.join(separator);
+      console.log("currentPath", currentPath);
       if (specialPaths.includes(currentPath)) {
         mergedParts.push(currentPath);
         buffer = [];
