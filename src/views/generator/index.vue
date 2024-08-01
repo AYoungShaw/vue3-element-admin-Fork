@@ -45,7 +45,7 @@
         />
         <el-table-column label="创建时间" align="center" prop="createTime" />
 
-        <el-table-column fixed="right" label="操作" width="150">
+        <el-table-column fixed="right" label="操作" width="200">
           <template #default="scope">
             <el-button
               type="primary"
@@ -54,7 +54,17 @@
               @click="handleOpenDialog(scope.row.tableName)"
             >
               <i-ep-MagicStick />
-              生成
+              生成代码
+            </el-button>
+
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="handleResetConfig(scope.row.tableName)"
+            >
+              <i-ep-RefreshLeft />
+              重置配置
             </el-button>
           </template>
         </el-table-column>
@@ -72,7 +82,7 @@
     <el-drawer
       v-model="dialog.visible"
       :title="dialog.title"
-      @close="handleCloseDialog"
+      @close="dialog.visible = false"
       size="80%"
     >
       <el-steps :active="active" align-center finish-status="success" simple>
@@ -91,7 +101,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="业务名">
-                <el-input v-model="formData.businessName" />
+                <el-input v-model="formData.businessName" placeholder="用户" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -99,12 +109,15 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="模块名">
-                <el-input v-model="formData.moduleName" />
+                <el-input v-model="formData.moduleName" placeholder="system" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="包名">
-                <el-input v-model="formData.packageName" />
+                <el-input
+                  v-model="formData.packageName"
+                  placeholder="com.youlai.boot"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -112,12 +125,27 @@
           <el-row>
             <el-col :span="12">
               <el-form-item label="实体名">
-                <el-input v-model="formData.entityName" />
+                <el-input v-model="formData.entityName" placeholder="User" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="作者">
-                <el-input v-model="formData.author" />
+                <el-input v-model="formData.author" placeholder="youlai" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="24">
+              <el-form-item label="父菜单">
+                <el-tree-select
+                  v-model="formData.parentMenuId"
+                  placeholder="选择父菜单"
+                  :data="menuOptions"
+                  filterable
+                  check-strictly
+                  :render-after-expand="false"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -351,6 +379,7 @@ import GeneratorAPI, {
 } from "@/api/generator";
 
 import DictAPI from "@/api/dict";
+import MenuAPI from "@/api/menu";
 
 const queryFormRef = ref(ElForm);
 
@@ -366,6 +395,7 @@ const formData = ref<GenConfigForm>({});
 const formTypeOptions: Record<string, OptionType> = FormTypeEnum;
 const queryTypeOptions: Record<string, OptionType> = QueryTypeEnum;
 const dictOptions = ref<OptionType[]>();
+const menuOptions = ref<OptionType[]>([]);
 
 const dialog = reactive({
   visible: false,
@@ -452,27 +482,42 @@ function handleResetQuery() {
   handleQuery();
 }
 
-function handleCloseDialog() {
-  dialog.visible = false;
-}
-
 /** 打开弹窗 */
-function handleOpenDialog(tableName: string) {
+async function handleOpenDialog(tableName: string) {
   dialog.visible = true;
+
+  menuOptions.value = await MenuAPI.getOptions();
 
   // 获取字典数据
   DictAPI.getList().then((data) => {
     dictOptions.value = data;
+    loading.value = true;
 
-    GeneratorAPI.getGenConfig(tableName).then((data) => {
-      dialog.title = `${tableName} 代码生成`;
-      formData.value = data;
-      if (formData.value.id) {
-        active.value = 2;
-        handlePreview(tableName);
-      } else {
-        active.value = 0;
-      }
+    GeneratorAPI.getGenConfig(tableName)
+      .then((data) => {
+        dialog.title = `${tableName} 代码生成`;
+        formData.value = data;
+        if (formData.value.id) {
+          active.value = 2;
+          handlePreview(tableName);
+        } else {
+          active.value = 0;
+        }
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  });
+}
+
+/** 重置配置 */
+function handleResetConfig(tableName: string) {
+  ElMessageBox.confirm("确定要重置配置吗？", "提示", {
+    type: "warning",
+  }).then(() => {
+    GeneratorAPI.resetGenConfig(tableName).then(() => {
+      ElMessage.success("重置成功");
+      handleQuery();
     });
   });
 }

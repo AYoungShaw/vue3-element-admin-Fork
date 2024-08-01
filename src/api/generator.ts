@@ -38,6 +38,14 @@ class GeneratorAPI {
       method: "get",
     });
   }
+
+  /** 重置代码配置 */
+  static resetGenConfig(tableName: string) {
+    return request({
+      url: `${GENERATOR_BASE_URL}/${tableName}/config`,
+      method: "delete",
+    });
+  }
 }
 
 export default GeneratorAPI;
@@ -98,6 +106,9 @@ export interface GenConfigForm {
 
   /** 作者 */
   author?: string;
+
+  /** 上级菜单 */
+  parentMenuId?: number;
 
   /** 字段配置列表 */
   fieldConfigs?: FieldConfig[];
