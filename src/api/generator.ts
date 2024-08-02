@@ -39,11 +39,32 @@ class GeneratorAPI {
     });
   }
 
-  /** 重置代码配置 */
+  /** 重置代码生成配置 */
   static resetGenConfig(tableName: string) {
     return request({
       url: `${GENERATOR_BASE_URL}/${tableName}/config`,
       method: "delete",
+    });
+  }
+
+  /**
+   * 下载 ZIP 文件
+   * @param url
+   * @param fileName
+   */
+  static download(tableName: string, fileName?: string) {
+    return request({
+      url: `${GENERATOR_BASE_URL}/${tableName}/download`,
+      method: "get",
+      responseType: "blob",
+    }).then((res) => {
+      const blob = new Blob([res.data], { type: "application/zip" });
+      const a = document.createElement("a");
+      const url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = fileName || "下载文件.zip";
+      a.click();
+      window.URL.revokeObjectURL(url);
     });
   }
 }
@@ -115,7 +136,7 @@ export interface GenConfigForm {
 }
 
 /** 字段配置 */
-interface FieldConfig {
+export interface FieldConfig {
   /** 主键 */
   id?: number;
 
@@ -154,4 +175,7 @@ interface FieldConfig {
 
   /** 字段长度 */
   maxLength?: number;
+
+  /** 字段排序 */
+  fieldSort?: number;
 }
