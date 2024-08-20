@@ -74,10 +74,10 @@ class UserAPI {
    * @param id 用户ID
    * @param password 新密码
    */
-  static updatePassword(id: number, password: string) {
+  static resetPassword(id: number, password: string) {
     return request({
       url: `${USER_BASE_URL}/${id}/password`,
-      method: "patch",
+      method: "put",
       params: { password: password },
     });
   }
@@ -138,17 +138,58 @@ class UserAPI {
   }
 
   /** 获取个人中心用户信息 */
-  static getProfile(id: number) {
+  static getProfile() {
     return request<any, UserProfileVO>({
-      url: `${USER_BASE_URL}/${id}/profile`,
+      url: `${USER_BASE_URL}/profile`,
       method: "get",
     });
   }
 
   /** 修改个人中心用户信息 */
-  static updateProfile(id: number, data: UserProfileForm) {
+  static updateProfile(data: UserProfileForm) {
     return request({
-      url: `${USER_BASE_URL}/${id}/profile`,
+      url: `${USER_BASE_URL}/profile`,
+      method: "put",
+      data: data,
+    });
+  }
+
+  /** 修改个人中心用户密码 */
+  static changePassword(data: PasswordChangeForm) {
+    return request({
+      url: `${USER_BASE_URL}/password`,
+      method: "put",
+      data: data,
+    });
+  }
+
+  /**
+   *   发送手机/邮箱验证码
+   *
+   * @param contact 联系方式  手机号/邮箱
+   * @param contactType 联系方式类型 MOBILE:手机;EMAIL:邮箱
+   */
+  static sendVerificationCode(contact: string, contactType: string) {
+    return request({
+      url: `${USER_BASE_URL}/send-verification-code`,
+      method: "get",
+      params: { contact: contact, contactType: contactType },
+    });
+  }
+
+  /** 绑定个人中心用户手机 */
+  static bindMobile(data: MobileBindingForm) {
+    return request({
+      url: `${USER_BASE_URL}/mobile`,
+      method: "put",
+      data: data,
+    });
+  }
+
+  /** 丙丁个人中心用户邮箱 */
+  static bindEmail(data: EmailBindingForm) {
+    return request({
+      url: `${USER_BASE_URL}/email`,
       method: "put",
       data: data,
     });
@@ -267,6 +308,15 @@ export interface UserProfileVO {
 
   /** 邮箱 */
   email?: string;
+
+  /** 部门名称 */
+  deptName?: string;
+
+  /** 角色名称，多个使用英文逗号(,)分割 */
+  roleNames?: string;
+
+  /** 创建时间 */
+  createTime?: Date;
 }
 
 /** 个人中心用户信息表单 */
@@ -291,4 +341,30 @@ export interface UserProfileForm {
 
   /** 邮箱 */
   email?: string;
+}
+
+/** 修改密码表单 */
+export interface PasswordChangeForm {
+  /** 原密码 */
+  oldPassword?: string;
+  /** 新密码 */
+  newPassword?: string;
+  /** 确认新密码 */
+  confirmPassword?: string;
+}
+
+/** 修改手机表单 */
+export interface MobileBindingForm {
+  /** 手机号 */
+  mobile?: string;
+  /** 验证码 */
+  code?: string;
+}
+
+/** 修改邮箱表单 */
+export interface EmailBindingForm {
+  /** 邮箱 */
+  email?: string;
+  /** 验证码 */
+  code?: string;
 }
