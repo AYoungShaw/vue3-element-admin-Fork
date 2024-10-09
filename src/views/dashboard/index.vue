@@ -121,8 +121,10 @@
                       getGrowthRateClass(item.growthRate),
                     ]"
                   >
-                    <i-ep-top v-if="item.growthRate > 0" />
-                    <i-ep-bottom v-else-if="item.growthRate < 0" />
+                    <el-icon>
+                      <Top v-if="item.growthRate > 0" />
+                      <Bottom v-else-if="item.growthRate < 0" />
+                    </el-icon>
                     {{ formatGrowthRate(item.growthRate) }}
                   </span>
                 </div>
@@ -197,7 +199,6 @@ import WebSocketManager from "@/utils/websocket";
 import router from "@/router";
 
 import { useUserStore } from "@/store/modules/user";
-import { NoticeTypeEnum, getNoticeLabel } from "@/enums/NoticeTypeEnum";
 import StatsAPI, { VisitStatsVO } from "@/api/log";
 import NoticeAPI, { NoticePageVO } from "@/api/notice";
 
