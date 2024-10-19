@@ -108,9 +108,9 @@ const props = defineProps({
     default: true,
   },
   /**
-   * 单个文件上传大小限制(单位byte)
+   * 单个文件上传大小限制(单位MB)
    */
-  uploadMaxSize: {
+  maxSize: {
     type: Number,
     default: 2 * 1024 * 1024,
   },
@@ -225,10 +225,8 @@ watch(
  * 限制用户上传文件的大小
  */
 function handleBeforeUpload(file: UploadRawFile) {
-  if (file.size > props.uploadMaxSize) {
-    ElMessage.warning(
-      "上传文件不能大于" + Math.trunc(props.uploadMaxSize / 1024 / 1024) + "M"
-    );
+  if (file.size > props.maxSize) {
+    ElMessage.warning("上传文件不能大于" + props.maxSize + "M");
     return false;
   }
   uploadPercent.value = 0;

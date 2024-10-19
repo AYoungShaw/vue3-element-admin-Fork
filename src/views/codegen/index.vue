@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="search-container">
+    <div class="search-bar">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <el-form-item prop="keywords" label="关键字">
           <el-input
@@ -461,8 +461,8 @@ import GeneratorAPI, {
   FieldConfig,
 } from "@/api/codegen";
 
-import DictAPI from "@/api/dict";
-import MenuAPI from "@/api/menu";
+import DictAPI from "@/api/system/dict";
+import MenuAPI from "@/api/system/menu";
 
 interface TreeNode {
   label: string;
@@ -619,6 +619,19 @@ function handlePrevClick() {
 /** 下一步 */
 function handleNextClick() {
   if (active.value === 0) {
+    //这里需要校验基础配置
+    const { tableName, packageName, businessName, moduleName, entityName } =
+      genConfigFormData.value;
+    if (
+      !tableName ||
+      !packageName ||
+      !businessName ||
+      !moduleName ||
+      !entityName
+    ) {
+      ElMessage.error("表名、业务名、包名、模块名、实体名不能为空");
+      return;
+    }
     initSort();
   }
   if (active.value === 1) {
@@ -686,7 +699,10 @@ async function handleOpenDialog(tableName: string) {
   currentTableName.value = tableName;
   // 获取字典数据
   DictAPI.getList().then((data) => {
-    dictOptions.value = data;
+    dictOptions.value = data.map((item) => ({
+      label: item.name,
+      value: item.dictCode,
+    }));
     loading.value = true;
     GeneratorAPI.getGenConfig(tableName)
       .then((data) => {

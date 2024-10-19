@@ -151,6 +151,7 @@
     </div>
     <!-- 列表 -->
     <el-table
+      ref="tableRef"
       v-loading="loading"
       v-bind="contentConfig.table"
       :data="pageData"
@@ -497,6 +498,7 @@ import {
   type UploadInstance,
   type UploadRawFile,
   type UploadUserFile,
+  type TableInstance,
 } from "element-plus";
 import ExcelJS from "exceljs";
 import { reactive, ref } from "vue";
@@ -577,6 +579,8 @@ const request = props.contentConfig.request ?? {
   limitName: "pageSize",
 };
 
+const tableRef = ref<TableInstance>();
+
 // 行选中
 const selectionData = ref<IObject[]>([]);
 // 删除ID集合 用于批量删除
@@ -607,6 +611,9 @@ function handleDelete(id?: number | string) {
     if (props.contentConfig.deleteAction) {
       props.contentConfig.deleteAction(ids).then(() => {
         ElMessage.success("删除成功");
+        removeIds.value = [];
+        //清空选中项
+        tableRef.value?.clearSelection();
         handleRefresh(true);
       });
     } else {
@@ -940,7 +947,7 @@ function handleFilterChange(newFilters: any) {
   emit("filterChange", filterParams);
 }
 
-// 获取涮选条件
+// 获取筛选条件
 function getFilterParams() {
   return filterParams;
 }

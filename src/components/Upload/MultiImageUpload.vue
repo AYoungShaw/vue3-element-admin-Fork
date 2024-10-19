@@ -123,9 +123,9 @@ const props = defineProps({
   /**
    * 单张图片最大大小
    */
-  uploadMaxSize: {
+  maxSize: {
     type: Number,
-    default: 2 * 1024 * 1024,
+    default: 10,
   },
   /**
    * 上传文件类型
@@ -212,10 +212,8 @@ function handleRemove(removeFile: UploadFile) {
  * 限制用户上传文件的格式和大小
  */
 function handleBeforeUpload(file: UploadRawFile) {
-  if (file.size > props.uploadMaxSize) {
-    ElMessage.warning(
-      "上传图片不能大于" + Math.trunc(props.uploadMaxSize / 1024 / 1024) + "M"
-    );
+  if (file.size > props.maxSize * 1024 * 1024) {
+    ElMessage.warning("上传图片不能大于" + props.maxSize + "M");
     return false;
   }
   return true;

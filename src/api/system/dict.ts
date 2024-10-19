@@ -75,7 +75,7 @@ const DictAPI = {
    * @returns 字典列表
    */
   getList() {
-    return request<any, OptionType[]>({
+    return request<any, DictVO[]>({
       url: `${DICT_BASE_URL}/list`,
       method: "get",
     });
@@ -145,4 +145,36 @@ export interface DictForm {
    * 备注
    */
   remark?: string;
+}
+
+/**
+ * 字典数据项分页VO
+ *
+ * @description 字典数据分页对象
+ */
+export interface DictVO {
+  /** 字典名称 */
+  name: string;
+
+  /** 字典编码 */
+  dictCode: string;
+
+  /** 字典数据集合 */
+  dictDataList: DictData[];
+}
+
+/**
+ * 字典数据
+ *
+ * @description 字典数据
+ */
+export interface DictData {
+  /** 字典数据值 */
+  value: string;
+
+  /** 字典数据标签 */
+  label: string;
+
+  /** 标签类型 */
+  tagType: string;
 }
