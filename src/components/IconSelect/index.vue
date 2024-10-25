@@ -24,6 +24,15 @@
                 </template>
               </template>
               <template #suffix>
+                <!-- 清空按钮 -->
+                <el-icon
+                  v-if="selectedIcon"
+                  style="margin-right: 8px"
+                  @click.stop="clearSelectedIcon"
+                >
+                  <CircleClose />
+                </el-icon>
+
                 <el-icon
                   :style="{
                     transform: popoverVisible ? 'rotate(180deg)' : 'rotate(0)',
@@ -111,12 +120,15 @@ const elementIcons = ref<string[]>(Object.keys(ElementPlusIconsVue));
 const selectedIcon = defineModel("modelValue", {
   type: String,
   required: true,
+  default: "",
 });
 
 const filterText = ref("");
 const filteredSvgIcons = ref<string[]>([]);
 const filteredElementIcons = ref<string[]>(elementIcons.value);
-const isElementIcon = computed(() => selectedIcon.value.startsWith("el-icon-"));
+const isElementIcon = computed(() => {
+  return selectedIcon.value && selectedIcon.value.startsWith("el-icon");
+});
 
 function loadIcons() {
   const icons = import.meta.glob("../../assets/icons/*.svg");
@@ -161,6 +173,13 @@ function togglePopover() {
 onClickOutside(iconSelectRef, () => (popoverVisible.value = false), {
   ignore: [popoverContentRef],
 });
+
+/**
+ * 清空已选图标
+ */
+function clearSelectedIcon() {
+  selectedIcon.value = "";
+}
 
 onMounted(() => {
   loadIcons();
