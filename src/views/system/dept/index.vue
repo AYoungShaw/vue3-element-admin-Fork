@@ -31,7 +31,7 @@
           v-hasPerm="['sys:dept:add']"
           type="success"
           icon="plus"
-          @click="handleOpenDialog(0, undefined)"
+          @click="handleOpenDialog()"
         >
           新增
         </el-button>
@@ -136,8 +136,8 @@
         </el-form-item>
         <el-form-item label="部门状态">
           <el-radio-group v-model="formData.status">
-            <el-radio :label="1">正常</el-radio>
-            <el-radio :label="0">禁用</el-radio>
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -176,7 +176,7 @@ const deptList = ref<DeptVO[]>();
 const deptOptions = ref<OptionType[]>();
 const formData = reactive<DeptForm>({
   status: 1,
-  parentId: 0,
+  parentId: "0",
   sort: 1,
 });
 
@@ -213,12 +213,12 @@ function handleSelectionChange(selection: any) {
  * @param parentId 父部门ID
  * @param deptId 部门ID
  */
-async function handleOpenDialog(parentId?: number, deptId?: number) {
+async function handleOpenDialog(parentId?: string, deptId?: number) {
   // 加载部门下拉数据
   const data = await DeptAPI.getOptions();
   deptOptions.value = [
     {
-      value: 0,
+      value: "0",
       label: "顶级部门",
       children: data,
     },
@@ -232,11 +232,11 @@ async function handleOpenDialog(parentId?: number, deptId?: number) {
     });
   } else {
     dialog.title = "新增部门";
-    formData.parentId = parentId ?? 0;
+    formData.parentId = parentId || "0";
   }
 }
 
-// 部门表单提交
+// 提交部门表单
 function handleSubmit() {
   deptFormRef.value.validate((valid: any) => {
     if (valid) {
@@ -298,7 +298,7 @@ function resetForm() {
   deptFormRef.value.clearValidate();
 
   formData.id = undefined;
-  formData.parentId = 0;
+  formData.parentId = "0";
   formData.status = 1;
   formData.sort = 1;
 }
