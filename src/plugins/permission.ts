@@ -64,7 +64,7 @@ export function setupPermission() {
   });
 }
 
-/** 重定向到登录页 */
+// 重定向到登录页
 function redirectToLogin(to: RouteLocationNormalized, next: NavigationGuardNext) {
   const params = new URLSearchParams(to.query as Record<string, string>);
   const queryString = params.toString();

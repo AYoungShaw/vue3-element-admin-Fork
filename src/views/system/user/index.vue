@@ -65,7 +65,7 @@
                 新增
               </el-button>
               <el-button
-                v-hasPerm="['sys:user:delete']"
+                v-hasPerm="'sys:user:delete'"
                 type="danger"
                 icon="delete"
                 :disabled="selectIds.length === 0"
@@ -76,20 +76,14 @@
             </div>
             <div>
               <el-button
-                v-hasPerm="['sys:user:import']"
-                type="default"
+                v-hasPerm="'sys:user:import'"
                 icon="upload"
                 @click="handleOpenImportDialog"
               >
                 导入
               </el-button>
 
-              <el-button
-                v-hasPerm="['sys:user:export']"
-                type="default"
-                icon="download"
-                @click="handleExport"
-              >
+              <el-button v-hasPerm="'sys:user:export'" icon="download" @click="handleExport">
                 导出
               </el-button>
             </div>
@@ -114,11 +108,11 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="创建时间" align="center" prop="createTime" width="120" />
+            <el-table-column label="创建时间" align="center" prop="createTime" width="150" />
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
-                  v-hasPerm="['sys:user:password:reset']"
+                  v-hasPerm="'sys:user:password:reset'"
                   type="primary"
                   icon="RefreshLeft"
                   size="small"
@@ -128,7 +122,7 @@
                   重置密码
                 </el-button>
                 <el-button
-                  v-hasPerm="['sys:user:edit']"
+                  v-hasPerm="'sys:user:edit'"
                   type="primary"
                   icon="edit"
                   link
@@ -138,7 +132,7 @@
                   编辑
                 </el-button>
                 <el-button
-                  v-hasPerm="['sys:user:delete']"
+                  v-hasPerm="'sys:user:delete'"
                   type="danger"
                   icon="delete"
                   link
