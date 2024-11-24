@@ -211,12 +211,12 @@ function handleOpenDialog(id?: number) {
   }
 }
 
-// 刷新缓存
-function handleRefreshCache() {
+// 刷新缓存(防抖)
+const handleRefreshCache = useDebounceFn(() => {
   ConfigAPI.refreshCache().then(() => {
     ElMessage.success("刷新成功");
   });
-}
+}, 1000);
 
 // 系统配置表单提交
 function handleSubmit() {
