@@ -106,7 +106,7 @@ const props = defineProps({
    */
   limit: {
     type: Number,
-    default: 10,
+    default: 1,
   },
   /**
    * 是否显示删除按钮
@@ -143,6 +143,14 @@ const props = defineProps({
   supportFileType: {
     type: Array<string>,
     default: () => [],
+  },
+
+  /**
+   * 是否同步删除
+   */
+  isSyncDelete: {
+    type: Boolean,
+    default: true,
   },
   /**
    * 自定义样式
@@ -189,7 +197,7 @@ watch(
       return;
     }
 
-    if (modelValue.length <= 0) {
+    if (!modelValue || modelValue.length <= 0) {
       fileList.value = [];
       viewFileList.value = [];
       valFileList.value = [];
@@ -235,7 +243,19 @@ const handleError = (error: any) => {
  */
 function handleRemove(path: string) {
   if (path) {
-    FileAPI.deleteByPath(path).then(() => {
+    if (props.isSyncDelete) {
+      FileAPI.deleteByPath(path).then(() => {
+        valFileList.value = valFileList.value.filter((x) => x !== path);
+        // 删除成功回调
+        if (props.limit === 1) {
+          emit("update:modelValue", "");
+          emit("change", "");
+        } else {
+          emit("update:modelValue", valFileList.value);
+          emit("change", valFileList.value);
+        }
+      });
+    } else {
       valFileList.value = valFileList.value.filter((x) => x !== path);
       // 删除成功回调
       if (props.limit === 1) {
@@ -245,7 +265,7 @@ function handleRemove(path: string) {
         emit("update:modelValue", valFileList.value);
         emit("change", valFileList.value);
       }
-    });
+    }
   }
 }
 

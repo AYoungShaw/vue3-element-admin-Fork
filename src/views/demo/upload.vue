@@ -15,7 +15,7 @@
         {{ picUrl }}
       </el-form-item>
       <el-form-item label="图片上传">
-        <ImageUpload v-model="picUrl" :limit="1" :maxSize="10" />
+        <ImageUpload v-model="picUrl" :maxSize="10" />
       </el-form-item>
       <el-form-item label="参数说明">
         <el-table :data="imageUploadArgData" border>
@@ -62,7 +62,7 @@ const imageUploadArgData = [
     argsName: "headers",
     type: "Object",
     default: "{Authorization: localStorage.getItem(TOKEN_KEY),}",
-    desc: "提示文本类型",
+    desc: "上传请求头",
   },
   {
     argsName: "data",
@@ -79,8 +79,8 @@ const imageUploadArgData = [
   {
     argsName: "limit",
     type: "Number",
-    default: 10,
-    desc: "上传最大的图片数量,单张图片时填写1",
+    default: 1,
+    desc: "上传最大的图片数量,多张图片时填写最大上传数量，默认单张图片",
   },
   {
     argsName: "show-del-btn",
@@ -111,6 +111,12 @@ const imageUploadArgData = [
     type: "Array",
     default: "[]",
     desc: "支持的文件类型,默认支持所有图片格式,eg:['png','jpg','jpeg','gif']",
+  },
+  {
+    argsName: "isSyncDelete",
+    type: "Boolean",
+    default: "true",
+    desc: "是否同步删除服务端文件(默认是，如果为否，则只会删除当前上传的图片，已经上传到服务端到图片不会删除)",
   },
   {
     argsName: "style",
