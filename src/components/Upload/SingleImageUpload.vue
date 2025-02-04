@@ -4,6 +4,7 @@
     v-model="modelValue"
     class="single-upload"
     list-type="picture-card"
+    :show-file-list="false"
     :accept="props.accept"
     :before-upload="handleBeforeUpload"
     :http-request="handleUpload"
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElImageViewer, UploadRawFile, UploadRequestOptions } from "element-plus";
+import { UploadRawFile, UploadRequestOptions } from "element-plus";
 import FileAPI, { FileInfo } from "@/api/file";
 
 const props = defineProps({
@@ -45,7 +46,7 @@ const props = defineProps({
     default: "file",
   },
   /**
-   * 文件大小允许最大（单位：MB）
+   * 最大文件大小（单位：M）
    */
   maxFileSize: {
     type: Number,
@@ -53,22 +54,22 @@ const props = defineProps({
   },
 
   /**
-   * 接收文件类型
+   * 上传图片格式，默认支持所有图片(image/*)，指定格式示例：'.png,.jpg,.jpeg,.gif,.bmp'
    */
   accept: {
     type: String,
-    default: "image/*", //  默认支持所有图片格式 ，如果需要指定格式，格式如下：'.png,.jpg,.jpeg,.gif,.bmp'
+    default: "image/*",
   },
 
   /**
-   * 自定义样式
+   * 自定义样式，用于设置组件的宽度和高度等其他样式
    */
   style: {
     type: Object,
     default: () => {
       return {
-        width: "130px",
-        height: "130px",
+        width: "150px",
+        height: "150px",
       };
     },
   },
