@@ -20,7 +20,6 @@ const __APP_INFO__ = {
 const pathSrc = resolve(__dirname, "src");
 
 // Vite配置  https://cn.vitejs.dev/config
-
 export default defineConfig(({ mode }: ConfigEnv) => {
   const env = loadEnv(mode, process.cwd());
   return {
@@ -100,7 +99,10 @@ export default defineConfig(({ mode }: ConfigEnv) => {
         "sortablejs",
         "exceljs",
         "path-to-regexp",
-        "echarts",
+        "echarts/core",
+        "echarts/renderers",
+        "echarts/charts",
+        "echarts/components",
         "vue-i18n",
         "nprogress",
         "qs",

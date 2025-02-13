@@ -167,7 +167,6 @@
 
 <script setup lang="ts">
 import NoticeAPI, { NoticePageVO } from "@/api/system/notice";
-import WebSocketManager from "@/utils/websocket";
 import router from "@/router";
 
 const activeTab = ref("notice");
@@ -176,15 +175,19 @@ const messages = ref<any[]>([]);
 const tasks = ref<any[]>([]);
 const noticeDetailRef = ref();
 
-// 获取未读消息列表并连接 WebSocket
-onMounted(() => {
-  NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 5, isRead: 0 }).then((data) => {
-    notices.value = data.list;
-  });
+import { useStomp } from "@/hooks/useStomp";
 
-  WebSocketManager.subscribeToTopic("/user/queue/message", (message) => {
+const { subscribe, disconnect } = useStomp({
+  debug: true,
+});
+
+/**
+ * 订阅通知消息
+ */
+function subscribeNotice() {
+  subscribe("/user/queue/message", (message) => {
     console.log("收到消息：", message);
-    const data = JSON.parse(message);
+    const data = JSON.parse(message.body);
     const id = data.id;
     if (!notices.value.some((notice) => notice.id == id)) {
       notices.value.unshift({
@@ -202,7 +205,16 @@ onMounted(() => {
       });
     }
   });
-});
+}
+
+/**
+ * 获取我的通知公告
+ */
+function featchMyNotice() {
+  NoticeAPI.getMyNoticePage({ pageNum: 1, pageSize: 5, isRead: 0 }).then((data) => {
+    notices.value = data.list;
+  });
+}
 
 // 阅读通知公告
 function handleReadNotice(id: string) {
@@ -224,6 +236,16 @@ function markAllAsRead() {
     notices.value = [];
   });
 }
+
+// 获取未读消息列表并连接 WebSocket
+onMounted(() => {
+  featchMyNotice();
+  subscribeNotice();
+});
+
+onBeforeUnmount(() => {
+  disconnect();
+});
 </script>
 
 <style lang="scss" scoped>

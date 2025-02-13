@@ -950,7 +950,7 @@ function exportPageData(formData: IObject = {}) {
 }
 
 // 浏览器保存文件
-function saveXlsx(fileData: BlobPart, fileName: string) {
+function saveXlsx(fileData: any, fileName: string) {
   const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8";
 
