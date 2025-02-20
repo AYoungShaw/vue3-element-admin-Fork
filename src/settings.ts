@@ -1,6 +1,6 @@
 import { SizeEnum } from "./enums/SizeEnum";
 import { LayoutEnum } from "./enums/LayoutEnum";
-import { ThemeEnum } from "./enums/ThemeEnum";
+import { ThemeEnum, SidebarLightThemeEnum } from "./enums/ThemeEnum";
 import { LanguageEnum } from "./enums/LanguageEnum";
 
 const { pkg } = __APP_INFO__;
@@ -33,6 +33,8 @@ const defaultSettings: AppSettings = {
   watermarkEnabled: false,
   // 水印内容
   watermarkContent: pkg.name,
+  // 侧边栏配色方案
+  sidebarColorScheme: SidebarLightThemeEnum.WHITE,
 };
 
 export default defaultSettings;
