@@ -143,7 +143,7 @@
     <el-drawer
       v-model="assignPermDialogVisible"
       :title="'【' + checkedRole.name + '】权限分配'"
-      size="500"
+      :size="drawerSize"
     >
       <div class="flex-x-between">
         <el-input v-model="permKeywords" clearable class="w-[150px]" placeholder="菜单权限名称">
@@ -203,13 +203,18 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "@/store/modules/app.store";
+import { DeviceEnum } from "@/enums/settings/device.enum";
+
+import RoleAPI, { RolePageVO, RoleForm, RolePageQuery } from "@/api/system/role.api";
+import MenuAPI from "@/api/system/menu.api";
+
 defineOptions({
   name: "Role",
   inheritAttrs: false,
 });
 
-import RoleAPI, { RolePageVO, RoleForm, RolePageQuery } from "@/api/system/role";
-import MenuAPI from "@/api/system/menu";
+const appStore = useAppStore();
 
 const queryFormRef = ref();
 const roleFormRef = ref();
@@ -234,6 +239,9 @@ const dialog = reactive({
   title: "",
   visible: false,
 });
+
+const drawerSize = computed(() => (appStore.device === DeviceEnum.DESKTOP ? "600px" : "90%"));
+
 // 角色表单
 const formData = reactive<RoleForm>({
   sort: 1,
@@ -313,7 +321,7 @@ function handleSubmit() {
           })
           .finally(() => (loading.value = false));
       } else {
-        RoleAPI.add(formData)
+        RoleAPI.create(formData)
           .then(() => {
             ElMessage.success("新增成功");
             handleCloseDialog();

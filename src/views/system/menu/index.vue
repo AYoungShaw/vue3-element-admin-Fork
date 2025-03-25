@@ -76,7 +76,7 @@
         <el-table-column fixed="right" align="center" label="操作" width="220">
           <template #default="scope">
             <el-button
-              v-if="scope.row.type == 'CATALOG' || scope.row.type == 'MENU'"
+              v-if="scope.row.type == MenuTypeEnum.CATALOG || scope.row.type == MenuTypeEnum.MENU"
               v-hasPerm="['sys:menu:add']"
               type="primary"
               link
@@ -112,7 +112,12 @@
       </el-table>
     </el-card>
 
-    <el-drawer v-model="dialog.visible" :title="dialog.title" size="50%" @close="handleCloseDialog">
+    <el-drawer
+      v-model="dialog.visible"
+      :title="dialog.title"
+      :size="drawerSize"
+      @close="handleCloseDialog"
+    >
       <el-form ref="menuFormRef" :model="formData" :rules="rules" label-width="100px">
         <el-form-item label="父级菜单" prop="parentId">
           <el-tree-select
@@ -131,14 +136,14 @@
 
         <el-form-item label="菜单类型" prop="type">
           <el-radio-group v-model="formData.type" @change="handleMenuTypeChange">
-            <el-radio value="CATALOG">目录</el-radio>
-            <el-radio value="MENU">菜单</el-radio>
-            <el-radio value="BUTTON">按钮</el-radio>
-            <el-radio value="EXTLINK">外链</el-radio>
+            <el-radio :value="MenuTypeEnum.CATALOG">目录</el-radio>
+            <el-radio :value="MenuTypeEnum.MENU">菜单</el-radio>
+            <el-radio :value="MenuTypeEnum.BUTTON">按钮</el-radio>
+            <el-radio :value="MenuTypeEnum.EXTLINK">外链</el-radio>
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item v-if="formData.type == 'EXTLINK'" label="外链地址" prop="path">
+        <el-form-item v-if="formData.type == MenuTypeEnum.EXTLINK" label="外链地址" prop="path">
           <el-input v-model="formData.routePath" placeholder="请输入外链完整路径" />
         </el-form-item>
 
@@ -330,13 +335,18 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "@/store/modules/app.store";
+import { DeviceEnum } from "@/enums/settings/device.enum";
+
+import MenuAPI, { MenuQuery, MenuForm, MenuVO } from "@/api/system/menu.api";
+import { MenuTypeEnum } from "@/enums/system/menu.enum";
+
 defineOptions({
   name: "SysMenu",
   inheritAttrs: false,
 });
 
-import MenuAPI, { MenuQuery, MenuForm, MenuVO } from "@/api/system/menu";
-import { MenuTypeEnum } from "@/enums/MenuTypeEnum";
+const appStore = useAppStore();
 
 const queryFormRef = ref();
 const menuFormRef = ref();
@@ -347,6 +357,7 @@ const dialog = reactive({
   visible: false,
 });
 
+const drawerSize = computed(() => (appStore.device === DeviceEnum.DESKTOP ? "600px" : "90%"));
 // 查询参数
 const queryParams = reactive<MenuQuery>({});
 // 菜单表格数据
@@ -465,7 +476,7 @@ function handleSubmit() {
           handleQuery();
         });
       } else {
-        MenuAPI.add(formData.value).then(() => {
+        MenuAPI.create(formData.value).then(() => {
           ElMessage.success("新增成功");
           handleCloseDialog();
           handleQuery();

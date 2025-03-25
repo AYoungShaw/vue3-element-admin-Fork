@@ -162,6 +162,7 @@
       v-model="dialog.visible"
       :title="dialog.title"
       append-to-body
+      :size="drawerSize"
       @close="handleCloseDialog"
     >
       <el-form ref="userFormRef" :model="formData" :rules="rules" label-width="80px">
@@ -237,10 +238,12 @@
 </template>
 
 <script setup lang="ts">
-import UserAPI, { UserForm, UserPageQuery, UserPageVO } from "@/api/system/user";
+import { useAppStore } from "@/store/modules/app.store";
+import { DeviceEnum } from "@/enums/settings/device.enum";
 
-import DeptAPI from "@/api/system/dept";
-import RoleAPI from "@/api/system/role";
+import UserAPI, { UserForm, UserPageQuery, UserPageVO } from "@/api/system/user.api";
+import DeptAPI from "@/api/system/dept.api";
+import RoleAPI from "@/api/system/role.api";
 
 import DeptTree from "./components/DeptTree.vue";
 import UserImport from "./components/UserImport.vue";
@@ -249,6 +252,9 @@ defineOptions({
   name: "User",
   inheritAttrs: false,
 });
+
+const appStore = useAppStore();
+
 const queryFormRef = ref();
 const userFormRef = ref();
 
@@ -265,6 +271,7 @@ const dialog = reactive({
   visible: false,
   title: "新增用户",
 });
+const drawerSize = computed(() => (appStore.device === DeviceEnum.DESKTOP ? "600px" : "90%"));
 
 const formData = reactive<UserForm>({
   status: 1,
@@ -301,7 +308,7 @@ const roleOptions = ref<OptionType[]>();
 const importDialogVisible = ref(false);
 
 // 查询
-function handleQuery() {
+async function handleQuery() {
   loading.value = true;
   UserAPI.getPage(queryParams)
     .then((data) => {
@@ -395,7 +402,7 @@ const handleSubmit = useDebounceFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-        UserAPI.add(formData)
+        UserAPI.create(formData)
           .then(() => {
             ElMessage.success("新增用户成功");
             handleCloseDialog();
