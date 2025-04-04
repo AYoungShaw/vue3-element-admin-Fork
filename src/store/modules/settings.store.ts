@@ -1,7 +1,7 @@
 import defaultSettings from "@/settings";
 import { SidebarColor, ThemeMode } from "@/enums/settings/theme.enum";
 import { LayoutMode } from "@/enums/settings/layout.enum";
-import { generateThemeColors, applyTheme, toggleDarkMode, toggleSidebarColor } from "@/utils/theme";
+import { applyTheme, generateThemeColors, toggleDarkMode, toggleSidebarColor } from "@/utils/theme";
 
 type SettingsValue = boolean | string;
 
@@ -27,14 +27,14 @@ export const useSettingsStore = defineStore("setting", () => {
 
   // 主题
   const themeColor = useStorage<string>("themeColor", defaultSettings.themeColor);
-  const theme = useStorage<string>("theme", defaultSettings.theme);
+  const theme = useStorage<ThemeMode>("theme", defaultSettings.theme);
 
   //  监听主题变化
   watch(
     [theme, themeColor],
     ([newTheme, newThemeColor]) => {
       toggleDarkMode(newTheme === ThemeMode.DARK);
-      const colors = generateThemeColors(newThemeColor);
+      const colors = generateThemeColors(newThemeColor, newTheme);
       applyTheme(colors);
     },
     { immediate: true }
@@ -63,7 +63,7 @@ export const useSettingsStore = defineStore("setting", () => {
     if (setting) setting.value = value;
   }
 
-  function changeTheme(val: string) {
+  function changeTheme(val: ThemeMode) {
     theme.value = val;
   }
 
