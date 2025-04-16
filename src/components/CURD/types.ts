@@ -6,6 +6,8 @@ import type {
   PaginationProps,
   TableProps,
   ColProps,
+  ButtonType,
+  CardProps,
 } from "element-plus";
 import type PageContent from "./PageContent.vue";
 import type PageForm from "./PageForm.vue";
@@ -39,16 +41,16 @@ export type ComponentType =
   | "cascader";
 
 export interface ISearchConfig {
-  // 页面名称(参与组成权限标识,如sys:user:xxx)
-  pageName: string;
-  // 标签冒号
+  // 页面名称(参与组成权限标识,如sys:user:xxx),不填则不进行权限校验
+  pageName?: string;
+  // 标签冒号(默认：false)
   colon?: boolean;
-  // 表单项
-  formItems: Array<{
+  // 表单项(默认：[])
+  formItems?: Array<{
     // 组件类型(如input,select等)
     type?: ComponentType;
     // 标签文本
-    label: string;
+    label?: string;
     // 标签提示
     tips?: string | IObject;
     // 键名
@@ -64,10 +66,14 @@ export interface ISearchConfig {
     // 初始化数据函数扩展
     initFn?: (formItem: IObject) => void;
   }>;
-  // 是否开启展开和收缩
+  // 是否开启展开和收缩(默认：true)
   isExpandable?: boolean;
-  // 默认展示的表单项数量
+  // 默认展示的表单项数量(默认：3)
   showNumber?: number;
+  // 卡片属性
+  cardAttrs?: Partial<CardProps>;
+  // 自适应网格布局(使用时表单不要添加 style: { width: "200px" })
+  grid?: boolean;
 }
 
 export interface IContentConfig<T = any> {
@@ -75,6 +81,8 @@ export interface IContentConfig<T = any> {
   pageName: string;
   // table组件属性
   table?: Omit<TableProps<any>, "data">;
+  // 分页组件位置(默认：left)
+  pagePosition?: "left" | "right";
   // pagination组件属性
   pagination?:
     | boolean
@@ -128,7 +136,7 @@ export interface IContentConfig<T = any> {
         icon?: string;
         name: string;
         text: string;
-        type?: "primary" | "success" | "warning" | "danger" | "info";
+        type?: ButtonType;
       }
   >;
   // 表格工具栏右侧图标
@@ -194,7 +202,7 @@ export interface IContentConfig<T = any> {
           icon?: string;
           name: string;
           text: string;
-          type?: "primary" | "success" | "warning" | "danger" | "info";
+          type?: ButtonType;
           render?: (row: IObject) => boolean;
         }
     >;

@@ -1,7 +1,8 @@
 <template>
   <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+    <!-- 搜索区域 -->
+    <div class="search-container">
+      <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="auto">
         <el-form-item prop="keywords" label="关键字">
           <el-input
             v-model="queryParams.keywords"
@@ -11,7 +12,7 @@
           />
         </el-form-item>
 
-        <el-form-item>
+        <el-form-item class="search-buttons">
           <el-button type="primary" @click="handleQuery">
             <template #icon>
               <Search />
@@ -28,13 +29,14 @@
       </el-form>
     </div>
 
-    <el-card shadow="never" class="table-container">
+    <el-card shadow="hover" class="table-card">
       <el-table
         ref="dataTableRef"
         v-loading="loading"
         :data="pageData"
         highlight-current-row
         border
+        class="data-table__content"
       >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="表名" prop="tableName" min-width="100" />

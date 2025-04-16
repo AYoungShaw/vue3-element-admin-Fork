@@ -1,7 +1,14 @@
 <template>
   <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-suffix=":">
+    <!-- 搜索区域 -->
+    <div class="search-container">
+      <el-form
+        ref="queryFormRef"
+        :model="queryParams"
+        :inline="true"
+        label-suffix=":"
+        label-width="auto"
+      >
         <el-form-item label="标题" prop="title">
           <el-input
             v-model="queryParams.title"
@@ -10,51 +17,56 @@
             @keyup.enter="handleQuery()"
           />
         </el-form-item>
+
         <el-form-item label="发布状态" prop="publishStatus">
           <el-select
             v-model="queryParams.publishStatus"
-            class="!w-[100px]"
             clearable
             placeholder="全部"
+            style="width: 100px"
           >
             <el-option :value="0" label="未发布" />
             <el-option :value="1" label="已发布" />
             <el-option :value="-1" label="已撤回" />
           </el-select>
         </el-form-item>
-        <el-form-item>
+
+        <el-form-item class="search-buttons">
           <el-button type="primary" icon="search" @click="handleQuery()">搜索</el-button>
           <el-button icon="refresh" @click="handleResetQuery()">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
 
-    <el-card shadow="never" class="table-wrapper">
-      <template #header>
-        <el-button
-          v-hasPerm="['sys:notice:add']"
-          type="success"
-          icon="plus"
-          @click="handleOpenDialog()"
-        >
-          新增通知
-        </el-button>
-        <el-button
-          v-hasPerm="['sys:notice:delete']"
-          type="danger"
-          :disabled="selectIds.length === 0"
-          icon="delete"
-          @click="handleDelete()"
-        >
-          删除
-        </el-button>
-      </template>
+    <el-card shadow="hover" class="data-table">
+      <div class="data-table__toolbar">
+        <div class="data-table__toolbar--actions">
+          <el-button
+            v-hasPerm="['sys:notice:add']"
+            type="success"
+            icon="plus"
+            @click="handleOpenDialog()"
+          >
+            新增通知
+          </el-button>
+          <el-button
+            v-hasPerm="['sys:notice:delete']"
+            type="danger"
+            :disabled="selectIds.length === 0"
+            icon="delete"
+            @click="handleDelete()"
+          >
+            删除
+          </el-button>
+        </div>
+      </div>
 
       <el-table
         ref="dataTableRef"
         v-loading="loading"
         :data="pageData"
         highlight-current-row
+        class="data-table__content"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />

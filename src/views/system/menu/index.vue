@@ -1,7 +1,8 @@
 <template>
   <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+    <!-- 搜索区域 -->
+    <div class="search-container">
+      <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="auto">
         <el-form-item label="关键字" prop="keywords">
           <el-input
             v-model="queryParams.keywords"
@@ -10,34 +11,38 @@
             @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item>
+
+        <el-form-item class="search-buttons">
           <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
           <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
 
-    <el-card shadow="never">
-      <div class="mb-10px">
-        <el-button
-          v-hasPerm="['sys:menu:add']"
-          type="success"
-          icon="plus"
-          @click="handleOpenDialog('0')"
-        >
-          新增
-        </el-button>
+    <el-card shadow="hover" class="data-table">
+      <div class="data-table__toolbar">
+        <div class="data-table__toolbar--actions">
+          <el-button
+            v-hasPerm="['sys:menu:add']"
+            type="success"
+            icon="plus"
+            @click="handleOpenDialog('0')"
+          >
+            新增
+          </el-button>
+        </div>
       </div>
 
       <el-table
+        ref="dataTableRef"
         v-loading="loading"
-        :data="menuTableData"
-        highlight-current-row
         row-key="id"
+        :data="menuTableData"
         :tree-props="{
           children: 'children',
           hasChildren: 'hasChildren',
         }"
+        class="data-table__content"
         @row-click="handleRowClick"
       >
         <el-table-column label="菜单名称" min-width="200">
@@ -274,11 +279,11 @@
               始终显示
               <el-tooltip placement="bottom" effect="light">
                 <template #content>
-                  选择“是”，即使目录或菜单下只有一个子节点，也会显示父节点。
+                  选择"是"，即使目录或菜单下只有一个子节点，也会显示父节点。
                   <br />
-                  选择“否”，如果目录或菜单下只有一个子节点，则只显示该子节点，隐藏父节点。
+                  选择"否"，如果目录或菜单下只有一个子节点，则只显示该子节点，隐藏父节点。
                   <br />
-                  如果是叶子节点，请选择“否”。
+                  如果是叶子节点，请选择"否"。
                 </template>
                 <el-icon class="ml-1 cursor-pointer">
                   <QuestionFilled />

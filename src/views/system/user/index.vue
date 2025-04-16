@@ -9,14 +9,14 @@
 
       <!-- 用户列表 -->
       <el-col :lg="20" :xs="24">
-        <div class="search-bar">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+        <!-- 搜索区域 -->
+        <div class="search-container">
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="auto">
             <el-form-item label="关键字" prop="keywords">
               <el-input
                 v-model="queryParams.keywords"
                 placeholder="用户名/昵称/手机号"
                 clearable
-                style="width: 200px"
                 @keyup.enter="handleQuery"
               />
             </el-form-item>
@@ -26,7 +26,7 @@
                 v-model="queryParams.status"
                 placeholder="全部"
                 clearable
-                class="!w-[100px]"
+                style="width: 100px"
               >
                 <el-option label="正常" :value="1" />
                 <el-option label="禁用" :value="0" />
@@ -37,7 +37,6 @@
               <el-date-picker
                 v-model="queryParams.createTime"
                 :editable="false"
-                class="!w-[240px]"
                 type="daterange"
                 range-separator="~"
                 start-placeholder="开始时间"
@@ -46,16 +45,16 @@
               />
             </el-form-item>
 
-            <el-form-item>
+            <el-form-item class="search-buttons">
               <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
               <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
             </el-form-item>
           </el-form>
         </div>
 
-        <el-card shadow="never">
-          <div class="flex-x-between mb-10px">
-            <div>
+        <el-card shadow="hover" class="data-table">
+          <div class="data-table__toolbar">
+            <div class="data-table__toolbar--actions">
               <el-button
                 v-hasPerm="['sys:user:add']"
                 type="success"
@@ -74,7 +73,7 @@
                 删除
               </el-button>
             </div>
-            <div>
+            <div class="data-table__toolbar--tools">
               <el-button
                 v-hasPerm="'sys:user:import'"
                 icon="upload"
@@ -89,13 +88,20 @@
             </div>
           </div>
 
-          <el-table v-loading="loading" :data="pageData" @selection-change="handleSelectionChange">
+          <el-table
+            v-loading="loading"
+            :data="pageData"
+            border
+            stripe
+            highlight-current-row
+            class="data-table__content"
+            @selection-change="handleSelectionChange"
+          >
             <el-table-column type="selection" width="50" align="center" />
             <el-table-column label="用户名" prop="username" />
             <el-table-column label="昵称" width="150" align="center" prop="nickname" />
             <el-table-column label="性别" width="100" align="center">
               <template #default="scope">
-                <!-- 性别字典翻译 -->
                 <DictLabel v-model="scope.row.gender" code="gender" />
               </template>
             </el-table-column>
