@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container h-full flex flex-1 flex-col">
     <div class="flex-x-between mb-10">
       <el-link
         href="https://gitee.com/youlaiorg/vue3-element-admin/blob/master/src/views/demo/curd/index.vue"
@@ -65,7 +65,7 @@
       </page-modal>
 
       <!-- 二级弹窗 -->
-      <page-modal ref="addModalRef2" :modal-config="addModalConfig2" @custom-click="secondSubmit">
+      <page-modal ref="addModalRef2" :modal-config="addModalConfig2" @custom-submit="secondSubmit">
         <template #gender="scope">
           <Dict v-model="scope.formData[scope.prop]" code="gender" v-bind="scope.attrs" />
         </template>
@@ -117,13 +117,15 @@ import UserAPI from "@/api/system/user.api";
 import type { IObject, IOperateData, PageModalInstance } from "@/components/CURD/types";
 import usePage from "@/components/CURD/usePage";
 import addModalConfig from "./config/add";
-import addModalConfig2 from "./config/add2";
 import contentConfig from "./config/content";
-import contentConfig2 from "./config/content2";
 import editModalConfig from "./config/edit";
-import editModalConfig2 from "./config/edit2";
 import searchConfig from "./config/search";
-import searchConfig2 from "./config/search2";
+import { initOptions } from "./config/options";
+
+import addModalConfig2 from "./config2/add";
+import contentConfig2 from "./config2/content";
+import editModalConfig2 from "./config2/edit";
+import searchConfig2 from "./config2/search";
 
 const {
   searchRef,
@@ -140,8 +142,6 @@ const {
   handleSearchClick,
   handleFilterChange,
 } = usePage();
-
-const addModalRef2 = ref();
 
 // 其他工具栏
 function handleToolbarClick(name: string) {
@@ -195,13 +195,19 @@ const handleOperateClick2 = (data: IOperateData) => {
 };
 
 // 打开二级弹窗
+const addModalRef2 = ref();
 const openSecondModal = () => {
   handleAddClick(addModalRef2 as Ref<PageModalInstance>);
 };
-const secondSubmit = () => {
+const secondSubmit = (formData: any) => {
+  console.log("secondSubmit", formData);
   ElMessage.success("二级弹窗提交成功");
 };
 
 // 切换示例
 const isA = ref(true);
+
+onMounted(() => {
+  initOptions();
+});
 </script>
