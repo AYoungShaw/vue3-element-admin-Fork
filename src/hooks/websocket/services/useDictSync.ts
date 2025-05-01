@@ -1,6 +1,7 @@
 import { useDictStoreHook } from "@/store/modules/dict.store";
-import { useStomp } from "@/hooks/useStomp";
+import { useStomp } from "../core/useStomp";
 import { IMessage } from "@stomp/stompjs";
+import { ref } from "vue";
 
 // 字典消息类型
 export interface DictMessage {
@@ -12,14 +13,22 @@ export interface DictMessage {
 export type DictMessageCallback = (message: DictMessage) => void;
 
 // 全局单例实例
-let instance: ReturnType<typeof createWebSocketDict> | null = null;
+let instance: ReturnType<typeof createDictSyncHook> | null = null;
 
-// 创建WebSocket词典处理函数
-function createWebSocketDict() {
+/**
+ * 创建字典同步Hook
+ * 负责监听后端字典变更并同步到前端
+ */
+function createDictSyncHook() {
   const dictStore = useDictStoreHook();
 
-  // 使用现有的useStomp
-  const { isConnected, connect, subscribe, unsubscribe, disconnect } = useStomp();
+  // 使用现有的useStomp，配置适合字典场景的重连参数
+  const { isConnected, connect, subscribe, unsubscribe, disconnect } = useStomp({
+    reconnectDelay: 20000, // 字典更新重连时间
+    connectionTimeout: 15000, // 连接超时阈值
+    useExponentialBackoff: false, // 使用固定间隔重连策略
+    maxReconnectAttempts: 3, // 最多重连3次
+  });
 
   // 存储订阅ID
   const subscriptionIds = ref<string[]>([]);
@@ -50,6 +59,13 @@ function createWebSocketDict() {
    */
   const initWebSocket = async () => {
     try {
+      // 检查是否配置了WebSocket端点
+      const wsEndpoint = import.meta.env.VITE_APP_WS_ENDPOINT;
+      if (!wsEndpoint) {
+        console.log("[WebSocket] 未配置WebSocket端点,跳过连接");
+        return;
+      }
+
       // 连接WebSocket
       connect();
 
@@ -89,12 +105,12 @@ function createWebSocketDict() {
 
     console.log(`开始尝试订阅字典主题: ${topic}`);
 
-    // 延迟订阅，确保连接先建立
+    // 使用简化的重试逻辑，依赖useStomp的连接管理
     const attemptSubscribe = () => {
       if (!isConnected.value) {
         console.log("等待WebSocket连接建立...");
-        // 500ms后再次尝试
-        setTimeout(attemptSubscribe, 500);
+        // 10秒后再次尝试
+        setTimeout(attemptSubscribe, 10000);
         return;
       }
 
@@ -115,9 +131,7 @@ function createWebSocketDict() {
         subscribedTopics.value.add(topic);
         console.log(`字典主题订阅成功: ${topic}`);
       } else {
-        console.warn(`字典主题订阅失败，1秒后重试: ${topic}`);
-        // 尝试重新订阅
-        setTimeout(attemptSubscribe, 1000);
+        console.warn(`字典主题订阅失败: ${topic}`);
       }
     };
 
@@ -171,10 +185,13 @@ function createWebSocketDict() {
   };
 }
 
-// 导出单例实例的钩子
-export function useWebSocketDict() {
+/**
+ * 字典同步Hook
+ * 用于监听后端字典变更并同步到前端
+ */
+export function useDictSync() {
   if (!instance) {
-    instance = createWebSocketDict();
+    instance = createDictSyncHook();
   }
   return instance;
 }

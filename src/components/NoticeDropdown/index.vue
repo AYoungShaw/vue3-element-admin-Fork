@@ -35,7 +35,7 @@
             </div>
             <el-divider />
             <div class="flex-x-between">
-              <el-link type="primary" :underline="false" @click="handleViewMoreNotice">
+              <el-link type="primary" underline="never" @click="handleViewMoreNotice">
                 <span class="text-xs">查看更多</span>
                 <el-icon class="text-xs">
                   <ArrowRight />
@@ -44,7 +44,7 @@
               <el-link
                 v-if="noticeList.length > 0"
                 type="primary"
-                :underline="false"
+                underline="never"
                 @click="handleMarkAllAsRead"
               >
                 <span class="text-xs">全部已读</span>
@@ -94,7 +94,7 @@ const noticeList = ref<NoticePageVO[]>([]);
 const noticeDialogVisible = ref(false);
 const noticeDetail = ref<NoticeDetailVO | null>(null);
 
-import { useStomp } from "@/hooks/useStomp";
+import { useStomp } from "@/hooks/websocket/core/useStomp";
 const { subscribe, unsubscribe, isConnected } = useStomp();
 
 watch(

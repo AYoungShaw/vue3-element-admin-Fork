@@ -4,7 +4,7 @@
 
   <img src="https://img.shields.io/badge/Vue-3.5.13-brightgreen.svg"/>
   <img src="https://img.shields.io/badge/Vite-6.2.2-green.svg"/>
-  <img src="https://img.shields.io/badge/Element Plus-2.9.7-blue.svg"/>
+  <img src="https://img.shields.io/badge/Element Plus-2.9.9-blue.svg"/>
   <img src="https://img.shields.io/badge/license-MIT-green.svg"/>
   <a href="https://gitee.com/youlaiorg" target="_blank">
       <img src="https://img.shields.io/badge/Author-有来开源组织-orange.svg"/>
@@ -26,7 +26,7 @@
 
 
 <div align="center">
-  <a target="_blank" href="https://vue.youlai.tech">🖥️ 在线预览</a> |  <a target="_blank" href="https://juejin.cn/post/7228990409909108793">📑 阅读文档</a>|  <a target="_blank" href="https://www.youlai.tech//vue3-element-admin">🌐 官网</a> | <a href="./README.en-US.md">💬 English
+  <a target="_blank" href="https://vue.youlai.tech">🖥️ 在线预览</a> | <a target="_blank" href="https://app.youlai.tech">📲 移动端预览</a> |  <a target="_blank" href="https://juejin.cn/post/7228990409909108793">📑 阅读文档</a>|  <a target="_blank" href="https://www.youlai.tech//vue3-element-admin">🌐 官网</a> | <a href="./README.en-US.md">💬 English
 </div>
 
 
@@ -49,31 +49,41 @@
 
 ## 项目截图
 
-![](https://www.youlai.tech/storage/blog/2025/01/18/20250118160647.png)
+🖥️ **控制台**
+
+![](https://www.youlai.tech/storage/blog/2025/04/30/20250430085342.png)
+
+⚡**接口文档**
 
 ![](https://www.youlai.tech/storage/blog/2025/01/18/20250118183539.png)
+
+📲 **移动端**
+
+![](https://www.youlai.tech/storage/blog/2025/04/30/app.jpg)
 
 ## 项目源码
 
 | 项目 | Gitee   | Github    | GitCode|
 | ---- | ----| ---- | ---- |
-| vue3-element-admin 标准版| [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) | [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) | [vue3-element-admin](https://gitcode.com/youlai/vue3-element-admin) |
+| vue3-element-admin ✅| [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) | [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) | [vue3-element-admin](https://gitcode.com/youlai/vue3-element-admin) |
 | vue3-element-admin JS版| [vue3-element-admin-js](https://gitee.com/youlaiorg/vue3-element-admin-js) | [vue3-element-admin-js](https://github.com/youlaitech/vue3-element-admin-js) | [vue3-element-admin-js](https://gitcode.com/youlai/vue3-element-admin-js) |
-| vue3-element-admin 精简版 | [vue3-element-template](https://gitee.com/youlaiorg/vue3-element-template) | [vue3-element-template](https://github.com/youlaitech/vue3-element-template) |-|
+| vue3-element-admin 精简版 | [vue3-element-template](https://gitee.com/youlaiorg/vue3-element-template) | [vue3-element-template](https://github.com/youlaitech/vue3-element-template) |[vue3-element-template](https://gitcode.com/youlai/vue3-element-template)|
+| vue-uniapp-admin 移动版 | [vue-uniapp-admin](https://gitee.com/youlaiorg/vue-uniapp-admin) | [vue-uniapp-admin](https://github.com/youlaitech/vue-uniapp-admin) |[vue-uniapp-admin](https://gitcode.com/youlai/vue-uniapp-admin)|
 | Java 后端 | [youlai-boot](https://gitee.com/youlaiorg/youlai-boot)       | [youlai-boot](https://github.com/haoxianrui/youlai-boot.git) |[youlai-boot](https://gitcode.com/youlai/youlai-boot.git)|
 | Node 后端 | [youlai-nest](https://gitee.com/youlaiorg/youlai-nest)       | [youlai-nest](https://github.com/haoxianrui/youlai-nest.git) |[youlai-nest](https://gitcode.com/youlai/youlai-nest.git)|
 
 
 
-## 项目文档
+## 开发指南
 
-| 文档名称          | 访问地址                                                                                   |
-|---------------|-------------------------------------------------------------------------------------------|
-| 项目 0 到 1  | [基于 Vue3 + Vite + TypeScript + Element-Plus 从0到1搭建后台管理系统](https://blog.csdn.net/u013737132/article/details/130191394)  |
+| 名称          | 地址     |
+|---------------|--------------------|
+| 视频教程 | [https://www.bilibili.com/video/BV1eFUuYyEFj](https://www.bilibili.com/video/BV1eFUuYyEFj)  |
+| 项目搭建  | [基于 Vue3 + Vite + TypeScript + Element-Plus 从0到1搭建后台管理系统](https://blog.csdn.net/u013737132/article/details/130191394)  |
 | 官方文档 | [https://www.youlai.tech/vue3-element-admin/](https://www.youlai.tech/vue3-element-admin/)  |
 | 代码规范     | [ESLint V9 + Prettier + Stylelint + EditorConfig 约束和统一前端代码规范](https://youlai.blog.csdn.net/article/details/145608723) |
-| Git 规范 | [Husky + Lint-staged + Commitlint + Commitizen + cz-git 配置 Git 提交规范](https://youlai.blog.csdn.net/article/details/145615236) |
-| 在线接口文档 | [https://www.apifox.cn/apidoc](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5) |
+| 提交规范 | [Husky + Lint-staged + Commitlint + Commitizen + cz-git 配置 Git 提交规范](https://youlai.blog.csdn.net/article/details/145615236) |
+| 接口文档 | [https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5) |
 
 
 
@@ -84,7 +94,7 @@
 
 | 环境类型       | 名称                     |
 |----------------|-----------------------------|
-| **开发工具**   | [Visual Studio Code](https://code.visualstudio.com/Download)/[WebStorm](https://www.jetbrains.com.cn/webstorm/) |
+| **开发工具**   | [Visual Studio Code](https://code.visualstudio.com/Download) |
 | **运行环境**   | Node 18 + (推荐[22.9.0](https://npmmirror.com/mirrors/node/v22.9.0/))  |
 > ⚠️ 注意：Node.js 20.6.0版本存在兼容性问题，请勿使用
 
@@ -198,7 +208,7 @@ Thanks to all the contributors!
 
 
 ## 特别感谢
-- 感谢 [Jetbrains](https://www.jetbrains.com.cn/) 为项目提供的 [WebStorm](https://www.jetbrains.com/community/opensource/#support) 授权
+
 - 感谢 [GitCode](https://gitcode.com/) 官方的 [G-Star](https://gitcode.com/g-star) 认证
   ![](https://foruda.gitee.com/images/1728577513089814203/95f2a70d_716974.jpeg)
 
