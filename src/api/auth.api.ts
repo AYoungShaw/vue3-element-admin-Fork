@@ -25,14 +25,14 @@ const AuthAPI = {
     return request<any, LoginResult>({
       url: `${AUTH_BASE_URL}/refresh-token`,
       method: "post",
-      params: { refreshToken: refreshToken },
+      params: { refreshToken },
       headers: {
         Authorization: "no-auth",
       },
     });
   },
 
-  /** 注销登录接口 */
+  /** 退出登录接口 */
   logout() {
     return request({
       url: `${AUTH_BASE_URL}/logout`,
