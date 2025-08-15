@@ -8,78 +8,91 @@ const modules = import.meta.glob("../../views/**/**.vue");
 const Layout = () => import("@/layouts/index.vue");
 
 export const usePermissionStore = defineStore("permission", () => {
-  // 存储所有路由，包括静态路由和动态路由
+  // 所有路由（静态路由 + 动态路由）
   const routes = ref<RouteRecordRaw[]>([]);
-  // 混合模式左侧菜单路由
-  const sideMenuRoutes = ref<RouteRecordRaw[]>([]);
-  // 路由是否加载完成
-  const routesLoaded = ref(false);
+  // 混合布局的左侧菜单路由
+  const mixLayoutSideMenus = ref<RouteRecordRaw[]>([]);
+  // 动态路由是否已生成
+  const isDynamicRoutesGenerated = ref(false);
+
+  const allCacheRoutes = ref<string[][]>([]);
 
   /**
-   * 获取后台动态路由数据，解析并注册到全局路由
-   *
-   * @returns Promise<RouteRecordRaw[]> 解析后的动态路由列表
+   * 生成动态路由
    */
-  function generateRoutes() {
-    return new Promise<RouteRecordRaw[]>((resolve, reject) => {
-      MenuAPI.getRoutes()
-        .then((data) => {
-          const dynamicRoutes = parseDynamicRoutes(data);
+  async function generateRoutes(): Promise<RouteRecordRaw[]> {
+    try {
+      const data = await MenuAPI.getRoutes(); // 获取当前登录人拥有的菜单路由
+      const dynamicRoutes = parseDynamicRoutes(data);
 
-          routes.value = [...constantRoutes, ...dynamicRoutes];
-          routesLoaded.value = true;
+      routes.value = [...constantRoutes, ...dynamicRoutes];
 
-          resolve(dynamicRoutes);
-        })
-        .catch((error) => {
-          console.error("❌ Failed to generate routes:", error);
+      setAllCacheRoutes(routes.value);
+      isDynamicRoutesGenerated.value = true;
 
-          // 即使失败也要设置状态，避免无限重试
-          routesLoaded.value = false;
-
-          reject(error);
-        });
-    });
+      return dynamicRoutes;
+    } catch (error) {
+      console.error("❌ Failed to generate routes:", error);
+      isDynamicRoutesGenerated.value = false;
+      throw error;
+    }
   }
 
   /**
-   * 根据父菜单路径设置侧边菜单
-   *
-   * @param parentPath 父菜单的路径，用于查找对应的菜单项
+   * 设置混合布局的左侧菜单
    */
-  const updateSideMenu = (parentPath: string) => {
-    const matchedItem = routes.value.find((item) => item.path === parentPath);
-    if (matchedItem && matchedItem.children) {
-      sideMenuRoutes.value = matchedItem.children;
-    }
+  const setMixLayoutSideMenus = (parentPath: string) => {
+    const parentMenu = routes.value.find((item) => item.path === parentPath);
+    mixLayoutSideMenus.value = parentMenu?.children || [];
   };
 
   /**
-   * 重置路由
+   * 重置路由状态
    */
   const resetRouter = () => {
-    // 创建常量路由名称集合，用于O(1)时间复杂度的查找
+    // 移除动态路由
     const constantRouteNames = new Set(constantRoutes.map((route) => route.name).filter(Boolean));
-
-    // 从 router 实例中移除动态路由
     routes.value.forEach((route) => {
       if (route.name && !constantRouteNames.has(route.name)) {
         router.removeRoute(route.name);
       }
     });
 
-    // 重置为仅包含常量路由
+    // 重置状态
     routes.value = [...constantRoutes];
-    sideMenuRoutes.value = [];
-    routesLoaded.value = false;
+    mixLayoutSideMenus.value = [];
+    isDynamicRoutesGenerated.value = false;
+  };
+
+  /**
+   * 获取所有的缓存路由
+   * @param userRoutes 用户路由配置
+   */
+  const setAllCacheRoutes = (userRoutes: RouteRecordRaw[]) => {
+    if (!userRoutes?.length) {
+      allCacheRoutes.value = [];
+
+      return;
+    }
+
+    const result: string[][] = [];
+
+    userRoutes.forEach((route) => {
+      if (route.children?.length) {
+        traverseRoutes(route.children, [], result);
+      }
+    });
+
+    allCacheRoutes.value = result;
   };
 
   return {
     routes,
-    sideMenuRoutes,
-    routesLoaded,
+    mixLayoutSideMenus,
+    isDynamicRoutesGenerated,
+    allCacheRoutes,
     generateRoutes,
-    updateSideMenu,
+    setMixLayoutSideMenus,
     resetRouter,
   };
 });
@@ -112,6 +125,28 @@ const parseDynamicRoutes = (rawRoutes: RouteVO[]): RouteRecordRaw[] => {
   });
 
   return parsedRoutes;
+};
+
+/**
+ * 遍历路由树收集缓存路由
+ * @param nodes 路由节点
+ * @param path 当前路径
+ * @param result 结果数组
+ */
+const traverseRoutes = (nodes: RouteRecordRaw[], path: string[], result: string[][]) => {
+  nodes.forEach((node) => {
+    const newPath: string[] = node.name ? [...path, String(node.name)] : [...path];
+
+    // 叶子节点且需要缓存
+    if (!node.children?.length && node.meta?.keepAlive) {
+      result.push(newPath);
+    }
+
+    // 递归处理子节点
+    if (node.children?.length) {
+      traverseRoutes(node.children, newPath, result);
+    }
+  });
 };
 
 /**
