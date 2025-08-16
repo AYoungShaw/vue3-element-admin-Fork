@@ -1,5 +1,5 @@
 import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import { Auth } from "@/utils/auth";
+import { AuthStorage } from "@/utils/auth";
 
 export interface UseStompOptions {
   /** WebSocket 地址，不传时使用 VITE_APP_WS_ENDPOINT 环境变量 */
@@ -70,7 +70,7 @@ export function useStomp(options: UseStompOptions = {}) {
     }
 
     // 每次连接前重新获取最新令牌，不依赖之前的token值
-    const currentToken = Auth.getAccessToken();
+    const currentToken = AuthStorage.getAccessToken();
 
     // 检查令牌是否为空，如果为空则不进行连接
     if (!currentToken) {
